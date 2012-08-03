@@ -71,7 +71,7 @@ class Singly extends Remote_API {
 		if( empty($params) ) $params = array();
 		
 		// add access_token
-		$params['access_token'] = $this->creds['access_token'];
+		if( empty($params['access_token']) ) $params['access_token'] = $this->creds['access_token'];
 		
 		$http = new Http();
 		$http->setMethod('GET');

@@ -8,48 +8,93 @@
 
 class Singly extends Remote_API {
 
-	private $key;
-	private $secret;
-	private $token;
-	private $refresh_token;
-	private $url;
-	private $oauth;
-	private $cache;
-	public $api;
-	public $me;
+	//public $singly;
+	private  $config;
+	private  $creds;
+	public $oauth;
 	
 	// initialize
 	function __construct(){ 
 		
-		$this->api = "singly";
-		$this->url = "https://disqus.com/api/3.0/";
+		$this->url = "https://api.singly.com/v0/";
 		
-		$this->key = $GLOBALS['config']['singly']['key'];
-	 	$this->secret = $GLOBALS['config']['singly']['secret'];
+		$this->config = $GLOBALS['config']['singly'];
 		
-		$this->me = ( empty($_SESSION['oauth']['singly']['user_id']) ) ? false : $_SESSION['oauth']['singly']['user_id'];
-	 	
-		$this->token = ( empty($_SESSION['oauth']['singly']['access_token']) ) ? false : $_SESSION['oauth']['singly']['access_token'];
-	 	$this->refresh_token = ( empty($_SESSION['oauth']['singly']['refresh_token']) ) ? false : $_SESSION['oauth']['singly']['refresh_token'];
-	 	
-		// check the expiry of the token
-		$this->checkToken();
+		$this->init();
 		
 	}
+	
+	function init(){
+		// load all the necessery subclasses
+		$this->oauth = new Singly_OAuth();
+	}
+	
+	function login(){
 		
+		// get/update the creds
+		$this->creds = $this->oauth->creds();
+		
+		// check if the credentials are empty
+		return !empty($this->creds);
+	
+	}
+	
+	function me(){
+		
+		// get the connected services
+		$me = $this->get("profiles");
+		
+		return $me;
+		
+		/*// loop through all the available services
+		foreach( $me as $name=>$profile ){
+			// leave the global id singly creates alone...
+			if($name == "id") continue;
+			// check if we have more than one accounts connected to the same service
+			if(is_array($profile)){
+				foreach($profile as $k => $id){
+					$me[$name][$k]["data"] = $this->get("services/". $name ."/self#". $id);
+				}
+			} else {
+				$me[$name] = $this->get("services/". $name ."/self");
+			}
+			
+		}*/
+		
+	}
+	
+	
+	function get( $service="", $params=NULL ){
+		
+		// check cache before....
+		
+		if( empty($params) ) $params = array();
+		
+		// add access_token
+		$params['access_token'] = $this->creds['access_token'];
+		
+		$http = new Http();
+		$http->setMethod('GET');
+		$http->setParams($params);
+		
+		$http->execute( $this->url . $service );
+		
+		// add here validation/conditions for result...
+		$results = json_decode($http->result, true);
+		
+		// cache result
+		//$this->setCache( $service, $params, $results );
+		
+		return $results;
+		
+	}
+	
 	function post(){
 		
 	}
 	
 	function delete(){
 		
-	}
-	
-	function redirect(){
-		$data = array();
-		$data['url'] = $this->loginUrl;
-		$data['view'] = getPath('singly/views/redirect.php');
-		return $data;
 	}
 	
 	

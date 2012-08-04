@@ -27,6 +27,7 @@ class Singly extends Remote_API {
 	function init(){
 		// load all the necessery subclasses
 		$this->oauth = new Singly_OAuth();
+		$this->login();
 	}
 	
 	function login(){
@@ -64,11 +65,9 @@ class Singly extends Remote_API {
 	}
 	
 	
-	function get( $service="", $params=NULL ){
+	function get( $service="", $params=array() ){
 		
 		// check cache before....
-		
-		if( empty($params) ) $params = array();
 		
 		// add access_token
 		if( empty($params['access_token']) ) $params['access_token'] = $this->creds['access_token'];

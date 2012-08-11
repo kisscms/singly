@@ -16,22 +16,17 @@ class Singly_OAuth extends KISS_OAuth_v2 {
 		
 		$this->redirect_uri = url("/oauth/api/". $api);
 		
-		$this->client_id = $GLOBALS['config']['singly']['key'];
-	 	$this->client_secret = $GLOBALS['config']['singly']['secret'];
+		parent::__construct($api, $url);
 		
-		$this->token = ( empty($_SESSION['oauth']['singly']['access_token']) ) ? false : $_SESSION['oauth']['singly']['access_token'];
-	 	$this->refresh_token = ( empty($_SESSION['oauth']['singly']['refresh_token']) ) ? false : $_SESSION['oauth']['singly']['refresh_token'];
-	 	
 	}
 	
 	function save( $response ){
 		
-		// erase the existing cache
-		$singly = new Singly();
-		$singly->deleteCache();
+		// erase the existing creds
+		unset($_SESSION['oauth']['singly']);
 		
 		// convert string into an array
-		parse_str( $response, $auth );
+		$auth = json_decode( $response, true );
 		
 		if( is_array( $auth ) && array_key_exists("expires", $auth) )
 			// variable expires is the number of seconds in the future - will have to convert it to a date
@@ -39,6 +34,12 @@ class Singly_OAuth extends KISS_OAuth_v2 {
 		
 		// save to the user session 
 		$_SESSION['oauth']['singly'] = $auth;
+	}
+	
+	// Helpers
+	// - the Singly API doesn't offer a refresh token, so every check should be overuled 
+	function checkToken(){
+		return true;
 	}
 	
 }

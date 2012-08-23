@@ -88,14 +88,32 @@ class Singly extends Remote_API {
 		
 	}
 	
-	function post(){
+	function post( $service="", $params=array() ){
+		
+		// check cache before....
+		
+		// add access_token
+		if( empty($params['access_token']) ) $params['access_token'] = $this->creds['access_token'];
+		
+		$http = new Http();
+		$http->setMethod('POST');
+		$http->setParams( $request["params"] );
+		
+		$http->execute( $this->url . $service );
+		
+		// add here validation/conditions for result...
+		$results = json_decode($http->result, true);
+		
+		// cache result
+		//$this->setCache( $service, $params, $results );
+		
+		return $results;
 		
 	}
 	
 	function delete(){
 		
 	}
-	
 	
 }
 

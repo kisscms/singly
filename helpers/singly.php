@@ -97,7 +97,7 @@ class Singly extends Remote_API {
 		
 		$http = new Http();
 		$http->setMethod('POST');
-		$http->setParams( $request["params"] );
+		$http->setParams( $params );
 		
 		$http->execute( $this->url . $service );
 		

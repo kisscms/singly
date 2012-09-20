@@ -115,6 +115,20 @@ class Singly extends Remote_API {
 		
 	}
 	
+	function logout( $params=array() ){
+		
+		// add access_token
+		if( empty($params['access_token']) ) $params['access_token'] = $this->creds['access_token'];
+		// add redirect_uri ?
+		
+		$http = new Http();
+		$http->setMethod('GET');
+		$http->setParams($params);
+		// execute request
+		$http->execute( "https://api.singly.com/logout" );
+		
+	}
+	
 }
 
 
